@@ -1,0 +1,1 @@
+enum TaskOption { edit, delete }
