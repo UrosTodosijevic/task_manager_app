@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:task_manager_app/src/models/reminder.dart';
+import 'package:task_manager_app/src/providers.dart';
 import 'package:task_manager_app/src/screens/repeat_screen.dart';
 import 'package:task_manager_app/src/services/notification_service.dart';
 import 'package:task_manager_app/src/styles/colors.dart';
 import 'package:task_manager_app/src/styles/text.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class NewTaskScreen extends StatefulWidget {
   @override
@@ -62,7 +64,8 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                   _formKey.currentState.save();
                   _formKey.currentState
                       .reset(); // added this to clear input fields
-                  var notificationService = NotificationService.instance;
+                  //var notificationService = NotificationService.instance;
+                  var notificationService = context.read(notificationServiceProvider);
                   await notificationService.showNotification();
                   Navigator.of(context).push(
                       MaterialPageRoute(builder: (context) => RepeatScreen()));
@@ -572,13 +575,14 @@ class _NewTaskScreenBodyState extends State<NewTaskScreenBody> {
                       )
                     : Container(),
                 Divider(),
-                Row(
+                // TODO: Repeating Tasks - coming in next version of app
+                /*Row(
                   children: <Widget>[
                     Icon(
                       Icons.repeat,
-                      /*color: !_useNotifications
+                      *//*color: !_useNotifications
                             ? Colors.grey[600]
-                            : Colors.black*/
+                            : Colors.black*//*
                     ),
                     SizedBox(width: 10.0),
                     Expanded(
@@ -586,9 +590,9 @@ class _NewTaskScreenBodyState extends State<NewTaskScreenBody> {
                         _repeatingTask ? 'Repeat' : 'Do not repeat',
                         style: TextStyle(
                           fontSize: 20.0,
-                          /*color: !_useNotifications
+                          *//*color: !_useNotifications
                                 ? Colors.grey[600]
-                                : Colors.black*/
+                                : Colors.black*//*
                         ),
                       ),
                     ),
@@ -635,7 +639,7 @@ class _NewTaskScreenBodyState extends State<NewTaskScreenBody> {
                         },
                       )
                     : SizedBox.shrink(),
-                Divider(),
+                Divider(),*/
                 Row(
                   children: <Widget>[
                     Icon(Icons.note),

@@ -1,5 +1,8 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:moor/moor.dart';
 import 'package:task_manager_app/src/data/database/database.dart';
+import 'package:task_manager_app/src/providers.dart';
+import 'package:task_manager_app/src/services/notification_service.dart';
 
 part 'daos.g.dart';
 
@@ -126,6 +129,8 @@ class HelpersDao extends DatabaseAccessor<AppDatabase> with _$HelpersDaoMixin {
 class TodosDao extends DatabaseAccessor<AppDatabase> with _$TodosDaoMixin {
   TodosDao(AppDatabase attachedDatabase) : super(attachedDatabase);
 
+  Reader reader;
+
   Future<List<Todo>> get getAllTodos => select(todos).get();
 
   Stream<List<Todo>> get watchAllTodos => select(todos).watch();
@@ -179,8 +184,10 @@ class TasksDao extends DatabaseAccessor<AppDatabase> with _$TasksDaoMixin {
   Future<bool> updateTask(TasksCompanion task) => update(tasks).replace(task);
 
   Future<int> updateCompleted(Task task) =>
-      (update(tasks)..where((t) => t.id.equals(task.id)))
-          .write(TasksCompanion(completed: Value(!task.completed)));
+      (update(tasks)..where((t) => t.id.equals(task.id))).write(
+        TasksCompanion(completed: Value(!task.completed)),
+        dontExecute: task.completed,
+      );
 
   Future<int> deleteTask(Task task) {
     return transaction(() async {
@@ -306,10 +313,13 @@ class NotificationsDao extends DatabaseAccessor<AppDatabase>
 
   Future deleteTaskNotifications(Task task) async {
     final List<Notification> list = await getTaskNotifications(task);
-    // TODO: ovo je verovatno podeljeno na dva dela jer sam mislio da cu ovde da iskljucujem notifikacije pre njihovog brisanja,
-    // TODO: inace je brisanje moglo biti uradjeno u jednom koraku
-    // TODO: mozda je bolje u UI kodu, pre brisanja pozvati funkciju koja vraca niz notifikacija, odatle ih iskljuciti a potom ih izbrisati iz baze jednom funkcijom
-    list.forEach((n) => deleteNotification(n));
+    final ProviderContainer container = ProviderContainer();
+    final NotificationService notificationService =
+        container.read(notificationServiceProvider);
+    list.forEach((n) {
+      notificationService.cancelNotification(n.id);
+      deleteNotification(n);
+    });
   }
 
   deleteTaskNotificationsByTaskId(int taskId) async {

@@ -19,7 +19,6 @@ class TaskAlreadyDeletedMessage extends StatelessWidget {
             buttonText: 'GO BACK',
             buttonHeight: 60.0,
             onPressed: () {
-              // TODO: potraziti da li ima jos aktivnih notifikacija za ovaj task i ako ima iskljuciti ih
               Navigator.of(context).pop();
             },
           ),

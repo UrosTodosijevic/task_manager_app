@@ -32,9 +32,8 @@ class HomeScreenAppBar extends StatelessWidget implements PreferredSizeWidget {
       leading: AppBarIconButton(
         iconData: Icons.dehaze,
         onPressed: () {
-          /*Navigator.of(context).pushNamed(*//*'/todo_list_screen'*//*
+          /*Navigator.of(context).pushNamed(*/ /*'/todo_list_screen'*/ /*
               '/categories_screen');*/
-
         },
       ),
       actions: <Widget>[
@@ -72,7 +71,8 @@ class HomeScreenAppBar extends StatelessWidget implements PreferredSizeWidget {
                 .read(notificationsDaoProvider)
                 .getNotification(notificationId);
 
-            await NotificationService.instance
+            await context
+                .read(notificationServiceProvider)
                 .scheduleNotification(task, notification);
 
             // Druga notifikacija
@@ -90,8 +90,9 @@ class HomeScreenAppBar extends StatelessWidget implements PreferredSizeWidget {
                 .read(notificationsDaoProvider)
                 .getNotification(notificationId2);
 
-            await NotificationService.instance
-                .scheduleNotification(task, notification2);
+            await context
+                .read(notificationServiceProvider)
+                .scheduleInsistentNotification(task, notification2);
           },
         ),
         AppBarIconButton(

@@ -7,9 +7,9 @@ import 'package:task_manager_app/main.dart';
 import 'package:task_manager_app/src/data/database/database.dart' as db;
 
 class NotificationService {
-  NotificationService._();
+  /*NotificationService._();
 
-  static final NotificationService instance = NotificationService._();
+  static final NotificationService instance = NotificationService._();*/
 
   Future<void> showNotificationWithAddedOptions() async {
     var androidPlatformChannelSpecifics = AndroidNotificationDetails(
@@ -62,6 +62,12 @@ class NotificationService {
 
   Future<void> cancelAllNotifications() async {
     await flutterLocalNotificationsPlugin.cancelAll();
+  }
+
+  Future<void> rescheduleNotification(db.Task task, int notificationId) async {
+    await cancelNotification(notificationId);
+    await scheduleNotificationInFiveMinutes(
+        task, notificationId, DateTime.now().add(Duration(minutes: 5)));
   }
 
   /*Future<void> scheduleNotification() async {
@@ -158,6 +164,30 @@ class NotificationService {
     );
   }
 
+  Future<void> scheduleNotificationInFiveMinutes(
+      db.Task task, int notificationId, DateTime newTime) async {
+    var androidPlatformChannelSpecifics = AndroidNotificationDetails(
+      'notification channel id',
+      'notification channel name',
+      'notification channel description',
+      ticker: task.title,
+      priority: Priority.Max,
+      importance: Importance.Max,
+      // TODO: mozda dodati neke opcije, da notifikacija izgleda bolje
+    );
+    var platformChannelSpecifics =
+        NotificationDetails(androidPlatformChannelSpecifics, null);
+    await flutterLocalNotificationsPlugin.schedule(
+      notificationId,
+      task.title,
+      task.notes ?? '',
+      newTime,
+      platformChannelSpecifics,
+      payload: notificationId.toString(),
+      androidAllowWhileIdle: true,
+    );
+  }
+
   Future<void> scheduleInsistentNotification(
       db.Task task, db.Notification notification) async {
     var insistentFlag = 4;
@@ -181,30 +211,6 @@ class NotificationService {
       payload: notification.id.toString(),
       androidAllowWhileIdle: true,
     );
-  }
-
-  Future<void> showNotificationWithNoSound() async {
-    var androidPlatformChannelSpecifics = AndroidNotificationDetails(
-        'silent channel id',
-        'silent channel name',
-        'silent channel description',
-        playSound: false,
-        styleInformation: DefaultStyleInformation(true, true));
-    var platformChannelSpecifics =
-        NotificationDetails(androidPlatformChannelSpecifics, null);
-    await flutterLocalNotificationsPlugin.show(0, '<b>silent</b> title',
-        '<b>silent</b> body', platformChannelSpecifics);
-  }
-
-  Future<void> repeatNotification() async {
-    var androidPlatformChannelSpecifics = AndroidNotificationDetails(
-        'repeating channel id',
-        'repeating channel name',
-        'repeating description');
-    var platformChannelSpecifics =
-        NotificationDetails(androidPlatformChannelSpecifics, null);
-    await flutterLocalNotificationsPlugin.periodicallyShow(0, 'repeating title',
-        'repeating body', RepeatInterval.EveryMinute, platformChannelSpecifics);
   }
 
   Future<void> showDailyAtTime() async {

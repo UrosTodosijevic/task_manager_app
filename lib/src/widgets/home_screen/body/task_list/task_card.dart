@@ -77,6 +77,7 @@ class TaskCard extends StatelessWidget {
               }
               if (result == TaskOption.delete) {
                 print('Delete Task, soon...');
+                // Also turns off all scheduled notification for this task
                 context.read(tasksDaoProvider).deleteTask(task);
               }
             },
