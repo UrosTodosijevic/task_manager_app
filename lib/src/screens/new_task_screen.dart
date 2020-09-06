@@ -66,7 +66,6 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                       .reset(); // added this to clear input fields
                   //var notificationService = NotificationService.instance;
                   var notificationService = context.read(notificationServiceProvider);
-                  await notificationService.showNotification();
                   Navigator.of(context).push(
                       MaterialPageRoute(builder: (context) => RepeatScreen()));
                 },
