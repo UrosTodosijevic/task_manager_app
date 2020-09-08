@@ -14,8 +14,6 @@ dependencies:
   flutter:
     sdk: flutter
 
-  provider: ^4.1.2
-
   flutter_riverpod: ^0.7.2
 
   moor_ffi: ^0.8.0
@@ -26,9 +24,7 @@ dependencies:
 
   intl: ^0.16.1
 
-  #  shared_preferences: ^0.5.7+3
-
-  android_alarm_manager: ^0.4.5+11
+  #  android_alarm_manager: ^0.4.5+11
   flutter_local_notifications: ^1.4.4+2
   rxdart: ^0.23.1
 

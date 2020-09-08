@@ -1,0 +1,3 @@
+class NoTaskForwarded {
+  const NoTaskForwarded();
+}

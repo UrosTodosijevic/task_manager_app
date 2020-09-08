@@ -81,16 +81,6 @@ const List<ReminderForTimeSensitiveTask> defaultRemindersForTimeSensitiveTasks =
   oneWeekBefore,
 ];
 
-List<ReminderForTimeSensitiveTask> kopijaDefaultRemindersForTimeSensitiveTasks =
-    [
-  oneHourBefore,
-  tenMinutesBefore,
-  onTime,
-  oneWeekBefore,
-  oneDayBefore,
-  thirtyMinutesBefore,
-];
-
 /// Reminders for tasks that last whole day
 class ReminderForAllDayTasks extends Reminder {
   final days;
@@ -157,12 +147,4 @@ const List<ReminderForAllDayTasks> defaultRemindersForAllDayTasks = [
   day_before_09h,
   two_days_before_09h,
   week_before_09h,
-];
-
-List<ReminderForAllDayTasks> kopijaDefaultRemindersForAllDayTasks = [
-  week_before_09h,
-  two_days_before_09h,
-  day_before_17h,
-  day_of_00h,
-  day_before_09h,
 ];

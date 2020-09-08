@@ -74,6 +74,8 @@ class TaskCard extends StatelessWidget {
             onSelected: (TaskOption result) {
               if (result == TaskOption.edit) {
                 print('Edit Task, soon...');
+                Navigator.of(context)
+                    .pushNamed('/task_screen', arguments: task);
               }
               if (result == TaskOption.delete) {
                 print('Delete Task, soon...');

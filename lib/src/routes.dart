@@ -1,15 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:path/path.dart';
+import 'package:task_manager_app/src/data/database/database.dart';
+import 'package:task_manager_app/src/models/no_task_forwarded.dart';
 import 'package:task_manager_app/src/models/reminder.dart';
-import 'package:task_manager_app/src/screens/birthday_notification_screen.dart';
-import 'package:task_manager_app/src/screens/categories_screen.dart';
-import 'package:task_manager_app/src/screens/home_screen.dart';
-import 'package:task_manager_app/src/screens/new_category_screen.dart';
-import 'package:task_manager_app/src/screens/new_task_screen.dart';
-import 'package:task_manager_app/src/screens/reminder_screen.dart';
-import 'package:task_manager_app/src/screens/repeat_screen.dart';
-import 'package:task_manager_app/src/screens/task_notification_screen.dart';
-import 'package:task_manager_app/src/screens/todo_list_screen.dart';
+import 'package:task_manager_app/src/screens/screens.dart';
 
 abstract class Routes {
   static MaterialPageRoute materialRoutes(RouteSettings settings) {
@@ -18,17 +11,14 @@ abstract class Routes {
     switch (settings.name) {
       case '/':
         return MaterialPageRoute(builder: (context) => HomeScreen());
-        //return MaterialPageRoute(builder: (context) => NewTaskScreen());
-      //return MaterialPageRoute(builder: (context) => BirthdayNotificationScreen());
-      //return MaterialPageRoute(builder: (context) => PromenaDatuma());
-      case '/new_task_screen':
-        return MaterialPageRoute(builder: (context) => NewTaskScreen());
-      case '/categories_screen':
-        return MaterialPageRoute(builder: (context) => CategoriesScreen());
-      case '/new_category_screen':
-        return MaterialPageRoute(builder: (context) => NewCategoryScreen());
-      case '/todo_list_screen':
-        return MaterialPageRoute(builder: (context) => TodoListScreen());
+      case '/task_screen':
+        if (arguments is NoTaskForwarded) {
+          return MaterialPageRoute(builder: (context) => NewTaskScreen());
+        } else if (arguments is Task) {
+          return MaterialPageRoute(
+              builder: (context) => EditTaskScreen(arguments));
+        }
+        return _errorRoute();
       case '/reminder_screen':
         if (arguments is Map<String, dynamic>) {
           return MaterialPageRoute<Reminder>(
@@ -55,9 +45,3 @@ abstract class Routes {
     return MaterialPageRoute(builder: (context) => HomeScreen());
   }
 }
-
-// homeScreen - DA
-// newTaskScreen - DA
-// categoriesScreen - DA
-// newCategoryScreen - DA
-// todoListScreen - primace argument - DA

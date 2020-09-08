@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:task_manager_app/src/models/no_task_forwarded.dart';
 import 'package:task_manager_app/src/providers.dart';
 import 'package:task_manager_app/src/styles/styles.dart';
 
@@ -24,8 +25,10 @@ class HomeScreenFloatingActionButton extends StatelessWidget {
                   size: ButtonStyles.floatingActionButtonIconSize,
                   color: ButtonStyles.floatingActionButtonIconColor,
                 ),
-                onPressed: () =>
-                    Navigator.of(context).pushNamed('/new_task_screen'),
+                onPressed: () => Navigator.of(context).pushNamed(
+                  '/task_screen',
+                  arguments: const NoTaskForwarded(),
+                ),
               )
             : SizedBox.shrink();
       },

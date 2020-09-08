@@ -32,33 +32,10 @@ class Notifications extends Table {
   IntColumn get taskId => integer().customConstraint('REFERENCES tasks(id)')();
 }
 
-@DataClassName('Category')
-class Categories extends Table {
-  IntColumn get id => integer().autoIncrement()();
-
-  TextColumn get categoryName =>
-      text().customConstraint('UNIQUE').named('name')();
-}
-
-class Helpers extends Table {
-  IntColumn get id => integer().autoIncrement()();
-
-  TextColumn get fullName => text().withLength(min: 5, max: 32)();
-
-  TextColumn get email => text()();
-}
-
-class Todos extends Table {
-  IntColumn get id => integer().autoIncrement()();
-
-  TextColumn get name => text().withLength(max: 50)();
-
-  BoolColumn get completed => boolean().withDefault(const Constant(false))();
-}
-
 @UseMoor(
-    tables: [Tasks, Categories, Helpers, Todos, Notifications],
-    daos: [TasksDao, CategoriesDao, HelpersDao, TodosDao, NotificationsDao])
+  tables: [Tasks, Notifications],
+  daos: [TasksDao, NotificationsDao],
+)
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
@@ -71,13 +48,6 @@ class AppDatabase extends _$AppDatabase {
           await customStatement('PRAGMA foreign_keys = ON');
 
           if (details.wasCreated) {
-            final workCategoryId = await into(categories)
-                .insert(CategoriesCompanion(categoryName: Value('Work')));
-            final personalCategoryId = await into(categories)
-                .insert(CategoriesCompanion(categoryName: Value('Personal')));
-            final familyCategoryId = into(categories)
-                .insert(CategoriesCompanion(categoryName: Value('Family')));
-
             await into(tasks).insert(TasksCompanion(
               title: Value('Prvi task'),
               completed: Value(true),
@@ -174,92 +144,6 @@ class AppDatabase extends _$AppDatabase {
               dateAndTime:
                   Value(DateTime.now().subtract(Duration(minutes: 10))),
               taskId: Value(1),
-            ));
-
-            // Adding Todos
-            await into(todos).insert(TodosCompanion(
-              name: Value('Bananas'),
-              completed: Value(true),
-            ));
-
-            await into(todos).insert(TodosCompanion(
-              name: Value('Strawberries'),
-              completed: Value(true),
-            ));
-
-            await into(todos).insert(TodosCompanion(
-              name: Value('Regular Yogurt'),
-              completed: Value(false),
-            ));
-
-            await into(todos).insert(TodosCompanion(
-              name: Value('Capsicum'),
-              completed: Value(false),
-            ));
-
-            await into(todos).insert(TodosCompanion(
-              name: Value('Broccoli'),
-              completed: Value(false),
-            ));
-
-            await into(todos).insert(TodosCompanion(
-              name: Value('Cauliflower'),
-              completed: Value(false),
-            ));
-
-            await into(todos).insert(TodosCompanion(
-              name: Value('Tomatoes'),
-              completed: Value(false),
-            ));
-
-            await into(todos).insert(TodosCompanion(
-              name: Value('Onions'),
-              completed: Value(false),
-            ));
-
-            await into(todos).insert(TodosCompanion(
-              name: Value('Skim Milk'),
-              completed: Value(false),
-            ));
-
-            await into(todos).insert(TodosCompanion(
-              name: Value('Sweet Corn'),
-              completed: Value(false),
-            ));
-
-            await into(todos).insert(TodosCompanion(
-              name: Value('Baby Corn'),
-              completed: Value(false),
-            ));
-
-            await into(todos).insert(TodosCompanion(
-              name: Value('Cheese'),
-              completed: Value(false),
-            ));
-
-            await into(todos).insert(TodosCompanion(
-              name: Value('Bread'),
-              completed: Value(false),
-            ));
-
-            await into(todos).insert(TodosCompanion(
-              name: Value('Salty snacks'),
-              completed: Value(false),
-            ));
-
-            await into(todos).insert(TodosCompanion(
-              name: Value('Cereals'),
-              completed: Value(false),
-            ));
-
-            await into(todos).insert(TodosCompanion(
-              name: Value('Rice'),
-              completed: Value(false),
-            ));
-
-            await into(todos).insert(TodosCompanion(
-              name: Value('Pasta'),
-              completed: Value(false),
             ));
           }
         },

@@ -1,34 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:task_manager_app/src/models/reminder.dart';
-import 'package:task_manager_app/src/providers.dart';
 import 'package:task_manager_app/src/screens/repeat_screen.dart';
-import 'package:task_manager_app/src/services/notification_service.dart';
-import 'package:task_manager_app/src/styles/colors.dart';
-import 'package:task_manager_app/src/styles/text.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:task_manager_app/src/widgets/new_task_screen/app_bar/new_task_screen_app_bar.dart';
-import 'package:task_manager_app/src/widgets/new_task_screen/body/new_task_screen_body.dart';
+import 'package:task_manager_app/src/styles/styles.dart';
 
-class NewTaskScreen extends StatefulWidget {
+class NewTaskScreenAppBar extends StatefulWidget
+    implements PreferredSizeWidget {
+  // TODO: proveriti da li aplikacija radi kako treba sa ovim final
+  /*final */GlobalKey formKey;
+
+  NewTaskScreenAppBar(this.formKey);
+
   @override
-  _NewTaskScreenState createState() => _NewTaskScreenState();
+  _NewTaskScreenAppBarState createState() => _NewTaskScreenAppBarState();
+
+  @override
+  Size get preferredSize => Size.fromHeight(kToolbarHeight);
 }
 
-class _NewTaskScreenState extends State<NewTaskScreen> {
-  GlobalKey _formKey = GlobalKey<FormState>();
+class _NewTaskScreenAppBarState extends State<NewTaskScreenAppBar> {
+  GlobalKey<FormState> _formKey;
+
+  @override
+  void initState() {
+    super.initState();
+    _formKey = widget.formKey;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: /*newTaskScreenAppBar(context, _formKey)*/ NewTaskScreenAppBar(
-          _formKey),
-      body: NewTaskScreenBody(_formKey),
-    );
-  }
-
-/*AppBar newTaskScreenAppBar(
-      BuildContext context, GlobalKey<FormState> _formKey) {
     return AppBar(
       backgroundColor: AppColors.cadetBlue,
       automaticallyImplyLeading: false,
@@ -47,7 +45,9 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                     alignment: Alignment.center,
                     child: Text('CANCEL', style: TextStyle(fontSize: 22.0))),
                 onPressed: () {
-                  Navigator.of(context).pushReplacementNamed('/home_screen');
+                  //Navigator.of(context).pushReplacementNamed('/home_screen');
+                  print('pop()');
+                  Navigator.of(context).pop();
                 },
               ),
             ),
@@ -68,8 +68,9 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                   _formKey.currentState
                       .reset(); // added this to clear input fields
                   //var notificationService = NotificationService.instance;
-                  var notificationService =
-                      context.read(notificationServiceProvider);
+                  /*var notificationService =
+                      context.read(notificationServiceProvider);*/
+                  print('trebalo bi da je resetovao texteditingcontroller');
                   Navigator.of(context).push(
                       MaterialPageRoute(builder: (context) => RepeatScreen()));
                 },
@@ -79,7 +80,5 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
         ),
       ),
     );
-  }*/
+  }
 }
-
-
