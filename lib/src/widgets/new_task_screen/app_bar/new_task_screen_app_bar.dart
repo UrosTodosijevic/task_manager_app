@@ -1,29 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:task_manager_app/src/screens/repeat_screen.dart';
+import 'package:task_manager_app/src/screens/screens.dart';
 import 'package:task_manager_app/src/styles/styles.dart';
 
-class NewTaskScreenAppBar extends StatefulWidget
+class NewTaskScreenAppBar extends StatelessWidget
     implements PreferredSizeWidget {
-  // TODO: proveriti da li aplikacija radi kako treba sa ovim final
-  /*final */GlobalKey formKey;
-
-  NewTaskScreenAppBar(this.formKey);
-
-  @override
-  _NewTaskScreenAppBarState createState() => _NewTaskScreenAppBarState();
-
   @override
   Size get preferredSize => Size.fromHeight(kToolbarHeight);
-}
-
-class _NewTaskScreenAppBarState extends State<NewTaskScreenAppBar> {
-  GlobalKey<FormState> _formKey;
-
-  @override
-  void initState() {
-    super.initState();
-    _formKey = widget.formKey;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,18 +44,12 @@ class _NewTaskScreenAppBarState extends State<NewTaskScreenAppBar> {
                     alignment: Alignment.center,
                     child: Text('SAVE', style: TextStyle(fontSize: 22.0))),
                 onPressed: () async {
-                  if (!_formKey.currentState.validate()) {
-                    return;
+                  final enteringTaskSuccess = await newTaskScreenBodyStateKey
+                      .currentState
+                      .tryToEnterNewTask();
+                  if (enteringTaskSuccess) {
+                    Navigator.of(context).pop();
                   }
-                  _formKey.currentState.save();
-                  _formKey.currentState
-                      .reset(); // added this to clear input fields
-                  //var notificationService = NotificationService.instance;
-                  /*var notificationService =
-                      context.read(notificationServiceProvider);*/
-                  print('trebalo bi da je resetovao texteditingcontroller');
-                  Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => RepeatScreen()));
                 },
               ),
             ),

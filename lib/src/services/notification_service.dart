@@ -1,8 +1,11 @@
 import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:task_manager_app/main.dart';
 import 'package:task_manager_app/src/data/database/database.dart' as db;
+import 'package:task_manager_app/src/providers.dart';
 
 class NotificationService {
   Future<void> scheduleNotification(
@@ -28,6 +31,16 @@ class NotificationService {
       payload: notification.id.toString(),
       androidAllowWhileIdle: true,
     );
+  }
+
+  Future<void> scheduleNotificationUsingIds(
+      int taskId, int notificationId) async {
+    final container = ProviderContainer();
+    final task = await container.read(tasksDaoProvider).getTask(taskId);
+    final notification = await container
+        .read(notificationsDaoProvider)
+        .getNotification(notificationId);
+    await scheduleNotification(task, notification);
   }
 
   Future<void> scheduleInsistentNotification(
@@ -57,11 +70,11 @@ class NotificationService {
 
   Future<void> rescheduleNotification(db.Task task, int notificationId) async {
     await cancelNotification(notificationId);
-    await scheduleNotificationInFiveMinutes(
+    await _scheduleNotificationInFiveMinutes(
         task, notificationId, DateTime.now().add(Duration(minutes: 5)));
   }
 
-  Future<void> scheduleNotificationInFiveMinutes(
+  Future<void> _scheduleNotificationInFiveMinutes(
       db.Task task, int notificationId, DateTime newTime) async {
     var androidPlatformChannelSpecifics = AndroidNotificationDetails(
       'notification channel id',

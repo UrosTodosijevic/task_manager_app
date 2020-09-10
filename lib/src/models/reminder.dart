@@ -10,6 +10,8 @@ abstract class Reminder implements Comparable<Reminder> {
   int compareTo(Reminder other) {
     return this.toMinutes - other.toMinutes;
   }
+
+  DateTime notificationDateTime(DateTime taskDateTime);
 }
 
 /// Reminder for task that will happen at set time
@@ -55,6 +57,7 @@ class ReminderForTimeSensitiveTask extends Reminder {
     return minutes + hours * 60 + days * 24 * 60 + weeks * 7 * 24 * 60;
   }
 
+  @override
   DateTime notificationDateTime(DateTime taskDateTime) {
     return taskDateTime.subtract(Duration(
       minutes: minutes,
@@ -115,6 +118,7 @@ class ReminderForAllDayTasks extends Reminder {
   @override
   int get hashCode => days.hashCode ^ weeks.hashCode ^ time.hashCode;
 
+  @override
   DateTime notificationDateTime(DateTime taskDateTime) {
     DateTime newDate = taskDateTime.subtract(Duration(
       days: days != 0 ? days : weeks * 7,

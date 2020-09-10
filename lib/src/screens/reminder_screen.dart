@@ -192,7 +192,7 @@ class _ReminderScreenState extends State<ReminderScreen> {
   }
 }
 
-// TODO: MOZDA PROMENITI IME U ReminderCustomizationDialog ako i za repeat opcije bdem koristio CustomizationDialog
+// TODO: MOZDA PROMENITI IME U ReminderCustomizationDialog ako i za repeat opcije budem koristio CustomizationDialog
 class CustomizationDialog extends StatefulWidget {
   final bool allDayTaskReminderType;
 

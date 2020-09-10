@@ -10,20 +10,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:task_manager_app/src/widgets/new_task_screen/app_bar/new_task_screen_app_bar.dart';
 import 'package:task_manager_app/src/widgets/new_task_screen/body/new_task_screen_body.dart';
 
-class NewTaskScreen extends StatefulWidget {
-  @override
-  _NewTaskScreenState createState() => _NewTaskScreenState();
-}
+final GlobalKey<NewTaskScreenBodyState> newTaskScreenBodyStateKey =
+    GlobalKey<NewTaskScreenBodyState>();
 
-class _NewTaskScreenState extends State<NewTaskScreen> {
-  GlobalKey _formKey = GlobalKey<FormState>();
-
+class NewTaskScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: /*newTaskScreenAppBar(context, _formKey)*/ NewTaskScreenAppBar(
-          _formKey),
-      body: NewTaskScreenBody(_formKey),
+      appBar: NewTaskScreenAppBar(
+          /*key */ /*newTaskScreenAppBar(context, _formKey)*/),
+      body: NewTaskScreenBody(key: newTaskScreenBodyStateKey),
     );
   }
 
@@ -81,5 +77,3 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
     );
   }*/
 }
-
-
