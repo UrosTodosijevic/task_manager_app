@@ -29,9 +29,6 @@ class NewTaskScreenBodyState extends State<NewTaskScreenBody> {
 
   // Notification variables
   bool _useNotifications;
-  List<ReminderForTimeSensitiveTask> timeSensitiveTaskReminders;
-  List<ReminderForAllDayTasks> allDayTaskReminders;
-
   List<Reminder> _listOfReminders;
 
   // TODO:
@@ -60,17 +57,6 @@ class NewTaskScreenBodyState extends State<NewTaskScreenBody> {
 
     _allDay = false;
     _useNotifications = false;
-
-    // TODO: ovo ce verovatno biti izbaceno
-    timeSensitiveTaskReminders = List<ReminderForTimeSensitiveTask>()
-      ..add(tenMinutesBefore)
-      ..add(oneHourBefore)
-      ..add(ReminderForTimeSensitiveTask(minutes: 60));
-
-    // TODO: ovo ce verovatno biti izbaceno
-    allDayTaskReminders = List<ReminderForAllDayTasks>()
-      ..add(day_before_17h)
-      ..add(day_of_00h);
 
     // TODO: ovo ce verovatno biti zadrzano
     setListOfReminders();
@@ -466,17 +452,6 @@ class NewTaskScreenBodyState extends State<NewTaskScreenBody> {
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
                                         mainAxisSize: MainAxisSize.max,
-                                        /*children: _allDay
-                                            ? allDayTaskReminders
-                                                .map((reminder) =>
-                                                    makeNotificationCard(
-                                                        reminder, context))
-                                                .toList()
-                                            : timeSensitiveTaskReminders
-                                                .map((reminder) =>
-                                                    makeNotificationCard(
-                                                        reminder, context))
-                                                .toList(),*/
                                         children: _listOfReminders
                                             .map((reminder) =>
                                                 makeNotificationCard(
@@ -653,6 +628,7 @@ class NewTaskScreenBodyState extends State<NewTaskScreenBody> {
                         },
                       )
                     : Container(),
+                Container(height: 10.0),
               ],
             ),
           ),
@@ -719,13 +695,6 @@ class NewTaskScreenBodyState extends State<NewTaskScreenBody> {
             alignment: Alignment.center,
             icon: Icon(Icons.remove, /*size: 26.0,*/ color: Colors.red),
             onPressed:
-                /*_allDay
-                ? () => setState(() {
-                      allDayTaskReminders.remove(reminder);
-                    })
-                : () => setState(() {
-                      timeSensitiveTaskReminders.remove(reminder);
-                    }),*/
                 () => setState(() {
               _listOfReminders.remove(reminder);
             }),
@@ -736,36 +705,13 @@ class NewTaskScreenBodyState extends State<NewTaskScreenBody> {
   }
 
   bool isAddNotificationButtonEnabled() {
-    /*if (_allDay) {
-      if (allDayTaskReminders.length >= 0 && allDayTaskReminders.length < 3) {
-        return true;
-      }
-      return false;
-    } else {
-      if (timeSensitiveTaskReminders.length >= 0 &&
-          timeSensitiveTaskReminders.length < 3) {
-        return true;
-      }
-      return false;
-    }*/
     if (_listOfReminders.length >= 0 && _listOfReminders.length < 3) {
       return true;
     }
     return false;
   }
 
-  /*void resetNotificationLists() {
-    allDayTaskReminders
-      ..clear()
-      ..add(day_before_17h);
-    timeSensitiveTaskReminders
-      ..clear()
-      ..add(tenMinutesBefore);
-  }*/
-
   bool notificationListEmpty() {
-    /*return allDayTaskReminders.length == 0 ||
-        timeSensitiveTaskReminders.length == 0;*/
     return _listOfReminders.length == 0;
   }
 }

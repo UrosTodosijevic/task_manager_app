@@ -53,7 +53,8 @@ class TaskCard extends StatelessWidget {
                 task.notes != null
                     ? Text(task.notes,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyles.mediumBodyTextStyle)
+                        maxLines: 2,
+                        style: TextStyles.mediumBodyTextStyle,)
                     : SizedBox.shrink(),
               ],
             ),
