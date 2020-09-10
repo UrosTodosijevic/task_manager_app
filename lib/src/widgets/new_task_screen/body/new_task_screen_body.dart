@@ -52,19 +52,18 @@ class _NewTaskScreenBodyState extends State<NewTaskScreenBody> {
     _allDay = false;
     _useNotifications = false;
 
+    // TODO: ovo ce verovatno biti izbaceno
     timeSensitiveTaskReminders = List<ReminderForTimeSensitiveTask>()
       ..add(tenMinutesBefore)
       ..add(oneHourBefore)
       ..add(ReminderForTimeSensitiveTask(minutes: 60));
 
+    // TODO: ovo ce verovatno biti izbaceno
     allDayTaskReminders = List<ReminderForAllDayTasks>()
       ..add(day_before_17h)
       ..add(day_of_00h);
 
-    listOfReminders = List<ReminderForTimeSensitiveTask>()
-      ..add(tenMinutesBefore)
-      ..add(oneHourBefore);
-
+    // TODO: ovo ce verovatno biti zadrzano
     setListOfReminders();
 
     _repeatingTask = false;
@@ -81,7 +80,7 @@ class _NewTaskScreenBodyState extends State<NewTaskScreenBody> {
     } else {
       listOfReminders = List<ReminderForTimeSensitiveTask>()
         ..add(tenMinutesBefore)
-      //..add(oneHourBefore)
+        //..add(oneHourBefore)
         ..add(ReminderForTimeSensitiveTask(minutes: 60))
         ..add(oneWeekBefore);
     }
@@ -134,10 +133,11 @@ class _NewTaskScreenBodyState extends State<NewTaskScreenBody> {
                     hintStyle: TextStyle(fontSize: 20.0),
                   ),
                   cursorWidth: 3.0,
+                  cursorColor: AppColors.cadetBlue,
                   maxLength: 32,
                   style: TextStyle(fontSize: 20.0),
                   validator: (String value) =>
-                  value.isEmpty ? 'Task name is required' : null,
+                      value.isEmpty ? 'Task name is required' : null,
                   onSaved: (String value) {
                     print(value);
                   },
@@ -213,7 +213,7 @@ class _NewTaskScreenBodyState extends State<NewTaskScreenBody> {
                               _allDay == true
                                   ? DateFormat('E, MMM d, y').format(startDate)
                                   : DateFormat('E, MMM d, y HH:mm')
-                                  .format(startDate),
+                                      .format(startDate),
                               style: TextStyle(fontSize: 20.0),
                             ),
                           ),
@@ -235,48 +235,55 @@ class _NewTaskScreenBodyState extends State<NewTaskScreenBody> {
                               var pickedDate = await _selectDate(
                                   context, startDate, DateTime.now());
                               if (pickedDate == null) return;
-                              final pickedTime = await _selectTime(context,
-                                  currentStartTime /*TimeOfDay.fromDateTime(startDate)*/);
+                              final pickedTime =
+                                  await _selectTime(context, currentStartTime);
+                              if (pickedTime == null) return;
+                              var now = DateTime.now();
+                              var currentDate =
+                                  DateTime(now.year, now.month, now.day);
                               var currentTime = TimeOfDay.now();
-                              if (pickedTime != null) {
-                                if (pickedTime.hour > currentTime.hour ||
-                                    (pickedTime.hour == currentTime.hour &&
-                                        pickedTime.minute >
-                                            currentTime.minute)) {
-                                  DateTime newStartDateTime = DateTime(
+
+                              if (pickedDate.isAfter(currentDate) ||
+                                  pickedTime.hour > currentTime.hour ||
+                                  (pickedTime.hour == currentTime.hour &&
+                                      pickedTime.minute > currentTime.minute)) {
+                                DateTime newStartDateTime = DateTime(
+                                    pickedDate.year,
+                                    pickedDate.month,
+                                    pickedDate.day,
+                                    pickedTime.hour,
+                                    pickedTime.minute);
+                                /*
+                                does not work as planed when newStartDateTime
+                                has everything same, because of the way
+                                startDate is initialized at beginning (seconds
+                                and milliseconds are not subtract from .now()
+                                 */
+                                if (newStartDateTime.compareTo(endDate) < 0) {
+                                  setState(() {
+                                    startDate = newStartDateTime;
+                                    currentStartTime = pickedTime;
+                                  });
+                                } else {
+                                  DateTime newEndDateTime = DateTime(
                                       pickedDate.year,
                                       pickedDate.month,
                                       pickedDate.day,
-                                      pickedTime.hour,
+                                      pickedTime.hour + 1,
                                       pickedTime.minute);
-
-                                  if (newStartDateTime.compareTo(endDate) < 0) {
-                                    setState(() {
-                                      startDate = newStartDateTime;
-                                      currentStartTime = pickedTime;
-                                    });
-                                  } else {
-                                    DateTime newEndDateTime = DateTime(
-                                        pickedDate.year,
-                                        pickedDate.month,
-                                        pickedDate.day,
-                                        pickedTime.hour + 1,
-                                        pickedTime.minute);
-                                    setState(() {
-                                      startDate = newStartDateTime;
-                                      endDate = newEndDateTime;
-                                      currentStartTime = pickedTime;
-                                      currentEndTime = TimeOfDay.fromDateTime(
-                                          newEndDateTime);
-                                    });
-                                  }
-                                } else {
-                                  print('-------------- evo me --------------');
-                                  Scaffold.of(context).showSnackBar(SnackBar(
-                                    content: Text(
-                                        'Can not schedule tasks in past...'),
-                                  ));
+                                  setState(() {
+                                    startDate = newStartDateTime;
+                                    endDate = newEndDateTime;
+                                    currentStartTime = pickedTime;
+                                    currentEndTime =
+                                        TimeOfDay.fromDateTime(newEndDateTime);
+                                  });
                                 }
+                              } else {
+                                Scaffold.of(context).showSnackBar(SnackBar(
+                                  content:
+                                      Text('Can not schedule tasks in past...'),
+                                ));
                               }
                             }
                           },
@@ -308,7 +315,7 @@ class _NewTaskScreenBodyState extends State<NewTaskScreenBody> {
                               _allDay == true
                                   ? DateFormat('E, MMM d, y').format(endDate)
                                   : DateFormat('E, MMM d, y HH:mm')
-                                  .format(endDate),
+                                      .format(endDate),
                               style: TextStyle(fontSize: 20.0),
                             ),
                           ),
@@ -331,7 +338,7 @@ class _NewTaskScreenBodyState extends State<NewTaskScreenBody> {
                                   context, endDate, startDate);
                               if (pickedDate == null) return;
                               final pickedTime =
-                              await _selectTime(context, currentEndTime);
+                                  await _selectTime(context, currentEndTime);
                               if (pickedTime != null) {
                                 if (pickedTime.hour > currentStartTime.hour ||
                                     (pickedTime.hour == currentStartTime.hour &&
@@ -394,23 +401,23 @@ class _NewTaskScreenBodyState extends State<NewTaskScreenBody> {
                 ),
                 _useNotifications == true
                     ? Container(
-                  width: MediaQuery.of(context).size.width,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    //crossAxisAlignment: CrossAxisAlignment.center,
-                    //mainAxisSize: MainAxisSize.max,
-                    children: <Widget>[
-                      notificationListEmpty()
-                          ? SizedBox.shrink()
-                          : Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8.0),
-                          child: Column(
-                            mainAxisAlignment:
-                            MainAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.max,
-                            /*children: _allDay
+                        width: MediaQuery.of(context).size.width,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          //crossAxisAlignment: CrossAxisAlignment.center,
+                          //mainAxisSize: MainAxisSize.max,
+                          children: <Widget>[
+                            notificationListEmpty()
+                                ? SizedBox.shrink()
+                                : Expanded(
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8.0),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        mainAxisSize: MainAxisSize.max,
+                                        /*children: _allDay
                                             ? allDayTaskReminders
                                                 .map((reminder) =>
                                                     makeNotificationCard(
@@ -421,15 +428,15 @@ class _NewTaskScreenBodyState extends State<NewTaskScreenBody> {
                                                     makeNotificationCard(
                                                         reminder, context))
                                                 .toList(),*/
-                            children: listOfReminders
-                                .map((reminder) =>
-                                makeNotificationCard(
-                                    reminder, context))
-                                .toList(),
-                          ),
-                        ),
-                      ),
-                      /*FlatButton(
+                                        children: listOfReminders
+                                            .map((reminder) =>
+                                                makeNotificationCard(
+                                                    reminder, context))
+                                            .toList(),
+                                      ),
+                                    ),
+                                  ),
+                            /*FlatButton(
                               //clipBehavior: Clip.antiAlias,
                               shape: CircleBorder(),
                               //padding: const EdgeInsets.all(10.0),
@@ -440,49 +447,49 @@ class _NewTaskScreenBodyState extends State<NewTaskScreenBody> {
                               ),
                               onPressed: () => print('add notifications'),
                             ),*/
-                      IconButton(
-                        alignment: Alignment.center,
-                        iconSize: 32.0,
-                        padding:
-                        const EdgeInsets.symmetric(horizontal: 10.0),
-                        icon: Icon(
-                          Icons.add,
+                            IconButton(
+                              alignment: Alignment.center,
+                              iconSize: 32.0,
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10.0),
+                              icon: Icon(
+                                Icons.add,
+                              ),
+                              color: AppColors. /*tealBlue*/ cadetBlue,
+                              disabledColor: Colors.grey[400],
+                              onPressed: isAddNotificationButtonEnabled()
+                                  ? () async {
+                                      final returnedReminder =
+                                          await Navigator.of(context)
+                                              .pushNamed<Reminder>(
+                                        '/reminder_screen',
+                                        arguments: {
+                                          'reminder': null,
+                                          'allDayTaskReminder': _allDay,
+                                        },
+                                      );
+                                      if (returnedReminder != null) {
+                                        if (!listOfReminders
+                                                .contains(returnedReminder) &&
+                                            listOfReminders.indexWhere(
+                                                    (element) =>
+                                                        element.toMinutes ==
+                                                        returnedReminder
+                                                            .toMinutes) ==
+                                                -1) {
+                                          setState(() {
+                                            listOfReminders
+                                              ..add(returnedReminder)
+                                              ..sort();
+                                          });
+                                        }
+                                      }
+                                    }
+                                  : null,
+                            ),
+                          ],
                         ),
-                        color: AppColors. /*tealBlue*/ cadetBlue,
-                        disabledColor: Colors.grey[400],
-                        onPressed: isAddNotificationButtonEnabled()
-                            ? () async {
-                          final returnedReminder =
-                          await Navigator.of(context)
-                              .pushNamed<Reminder>(
-                            '/reminder_screen',
-                            arguments: {
-                              'reminder': null,
-                              'allDayTaskReminder': _allDay,
-                            },
-                          );
-                          if (returnedReminder != null) {
-                            if (!listOfReminders
-                                .contains(returnedReminder) &&
-                                listOfReminders.indexWhere(
-                                        (element) =>
-                                    element.toMinutes ==
-                                        returnedReminder
-                                            .toMinutes) ==
-                                    -1) {
-                              setState(() {
-                                listOfReminders
-                                  ..add(returnedReminder)
-                                  ..sort();
-                              });
-                            }
-                          }
-                        }
-                            : null,
-                      ),
-                    ],
-                  ),
-                )
+                      )
                     : Container(),
                 Divider(),
                 // TODO: Repeating Tasks - coming in next version of app
@@ -579,19 +586,19 @@ class _NewTaskScreenBodyState extends State<NewTaskScreenBody> {
                 ),
                 _hasNote
                     ? TextFormField(
-                  maxLines: null,
-                  maxLength: 160,
-                  decoration: InputDecoration(
-                    hintText: 'Notes...',
-                    hintStyle: TextStyle(fontSize: 18.0),
-                  ),
-                  style: TextStyle(fontSize: 18.0),
-                  validator: (String value) =>
-                  value.isEmpty ? 'Task name is required' : null,
-                  onSaved: (String value) {
-                    print(value);
-                  },
-                )
+                        maxLines: null,
+                        maxLength: 160,
+                        decoration: InputDecoration(
+                          hintText: 'Notes...',
+                          hintStyle: TextStyle(fontSize: 18.0),
+                        ),
+                        style: TextStyle(fontSize: 18.0),
+                        validator: (String value) =>
+                            value.isEmpty ? 'Task name is required' : null,
+                        onSaved: (String value) {
+                          print(value);
+                        },
+                      )
                     : Container(),
               ],
             ),
@@ -632,8 +639,8 @@ class _NewTaskScreenBodyState extends State<NewTaskScreenBody> {
                       returnedReminder.toMinutes != reminder.toMinutes) {
                     if (!listOfReminders.contains(returnedReminder) &&
                         listOfReminders.indexWhere((element) =>
-                        element.toMinutes ==
-                            returnedReminder.toMinutes) ==
+                                element.toMinutes ==
+                                returnedReminder.toMinutes) ==
                             -1) {
                       setState(() {
                         listOfReminders.remove(reminder);
@@ -659,7 +666,7 @@ class _NewTaskScreenBodyState extends State<NewTaskScreenBody> {
             alignment: Alignment.center,
             icon: Icon(Icons.remove, /*size: 26.0,*/ color: Colors.red),
             onPressed:
-            /*_allDay
+                /*_allDay
                 ? () => setState(() {
                       allDayTaskReminders.remove(reminder);
                     })
