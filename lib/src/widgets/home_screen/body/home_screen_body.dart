@@ -15,7 +15,7 @@ class HomeScreenBody extends StatelessWidget {
           ScrollableDatePicker(),
           SizedBox(height: 2.0),
           Expanded(
-            child: DailyTaskList(listOfSortedTasks),
+            child: DailyTaskList(),
           ),
         ],
       ),

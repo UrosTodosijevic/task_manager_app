@@ -17,7 +17,7 @@ class HomeScreenAppBar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: true,
       title: Column(
         children: <Widget>[
-          Text('MY EVENTS', style: TextStyles.appBarBigTextStyle),
+          Text('MY TASKS FOR', style: TextStyles.appBarBigTextStyle),
           Consumer(
             builder: (context, watch, child) {
               var selectedDate = watch(selectedDateProvider).state;

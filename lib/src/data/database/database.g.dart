@@ -15,6 +15,7 @@ class Task extends DataClass implements Insertable<Task> {
   final DateTime startDate;
   final DateTime endDate;
   final bool completed;
+
   Task(
       {@required this.id,
       @required this.title,
@@ -23,6 +24,7 @@ class Task extends DataClass implements Insertable<Task> {
       @required this.startDate,
       @required this.endDate,
       @required this.completed});
+
   factory Task.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
@@ -46,6 +48,7 @@ class Task extends DataClass implements Insertable<Task> {
           boolType.mapFromDatabaseResponse(data['${effectivePrefix}completed']),
     );
   }
+
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -108,6 +111,7 @@ class Task extends DataClass implements Insertable<Task> {
       completed: serializer.fromJson<bool>(json['completed']),
     );
   }
+
   @override
   Map<String, dynamic> toJson({ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
@@ -139,6 +143,7 @@ class Task extends DataClass implements Insertable<Task> {
         endDate: endDate ?? this.endDate,
         completed: completed ?? this.completed,
       );
+
   @override
   String toString() {
     return (StringBuffer('Task(')
@@ -164,6 +169,7 @@ class Task extends DataClass implements Insertable<Task> {
                   allDayTask.hashCode,
                   $mrjc(startDate.hashCode,
                       $mrjc(endDate.hashCode, completed.hashCode)))))));
+
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
@@ -185,6 +191,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
   final Value<DateTime> startDate;
   final Value<DateTime> endDate;
   final Value<bool> completed;
+
   const TasksCompanion({
     this.id = const Value.absent(),
     this.title = const Value.absent(),
@@ -194,6 +201,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
     this.endDate = const Value.absent(),
     this.completed = const Value.absent(),
   });
+
   TasksCompanion.insert({
     this.id = const Value.absent(),
     @required String title,
@@ -205,6 +213,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
   })  : title = Value(title),
         startDate = Value(startDate),
         endDate = Value(endDate);
+
   static Insertable<Task> custom({
     Expression<int> id,
     Expression<String> title,
@@ -289,11 +298,15 @@ class TasksCompanion extends UpdateCompanion<Task> {
 class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
   final GeneratedDatabase _db;
   final String _alias;
+
   $TasksTable(this._db, [this._alias]);
+
   final VerificationMeta _idMeta = const VerificationMeta('id');
   GeneratedIntColumn _id;
+
   @override
   GeneratedIntColumn get id => _id ??= _constructId();
+
   GeneratedIntColumn _constructId() {
     return GeneratedIntColumn('id', $tableName, false,
         hasAutoIncrement: true, declaredAsPrimaryKey: true);
@@ -301,8 +314,10 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
 
   final VerificationMeta _titleMeta = const VerificationMeta('title');
   GeneratedTextColumn _title;
+
   @override
   GeneratedTextColumn get title => _title ??= _constructTitle();
+
   GeneratedTextColumn _constructTitle() {
     return GeneratedTextColumn('title', $tableName, false,
         minTextLength: 6, maxTextLength: 32);
@@ -310,16 +325,20 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
 
   final VerificationMeta _notesMeta = const VerificationMeta('notes');
   GeneratedTextColumn _notes;
+
   @override
   GeneratedTextColumn get notes => _notes ??= _constructNotes();
+
   GeneratedTextColumn _constructNotes() {
     return GeneratedTextColumn('notes', $tableName, true, maxTextLength: 160);
   }
 
   final VerificationMeta _allDayTaskMeta = const VerificationMeta('allDayTask');
   GeneratedBoolColumn _allDayTask;
+
   @override
   GeneratedBoolColumn get allDayTask => _allDayTask ??= _constructAllDayTask();
+
   GeneratedBoolColumn _constructAllDayTask() {
     return GeneratedBoolColumn('all_day_task', $tableName, false,
         defaultValue: const Constant(false));
@@ -327,8 +346,10 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
 
   final VerificationMeta _startDateMeta = const VerificationMeta('startDate');
   GeneratedDateTimeColumn _startDate;
+
   @override
   GeneratedDateTimeColumn get startDate => _startDate ??= _constructStartDate();
+
   GeneratedDateTimeColumn _constructStartDate() {
     return GeneratedDateTimeColumn(
       'start_date',
@@ -339,8 +360,10 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
 
   final VerificationMeta _endDateMeta = const VerificationMeta('endDate');
   GeneratedDateTimeColumn _endDate;
+
   @override
   GeneratedDateTimeColumn get endDate => _endDate ??= _constructEndDate();
+
   GeneratedDateTimeColumn _constructEndDate() {
     return GeneratedDateTimeColumn(
       'end_date',
@@ -351,8 +374,10 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
 
   final VerificationMeta _completedMeta = const VerificationMeta('completed');
   GeneratedBoolColumn _completed;
+
   @override
   GeneratedBoolColumn get completed => _completed ??= _constructCompleted();
+
   GeneratedBoolColumn _constructCompleted() {
     return GeneratedBoolColumn('completed', $tableName, false,
         defaultValue: const Constant(false));
@@ -361,12 +386,15 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
   @override
   List<GeneratedColumn> get $columns =>
       [id, title, notes, allDayTask, startDate, endDate, completed];
+
   @override
   $TasksTable get asDslTable => this;
+
   @override
   String get $tableName => _alias ?? 'tasks';
   @override
   final String actualTableName = 'tasks';
+
   @override
   VerificationContext validateIntegrity(Insertable<Task> instance,
       {bool isInserting = false}) {
@@ -412,6 +440,7 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
 
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
+
   @override
   Task map(Map<String, dynamic> data, {String tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
@@ -428,8 +457,10 @@ class Notification extends DataClass implements Insertable<Notification> {
   final int id;
   final DateTime dateAndTime;
   final int taskId;
+
   Notification(
       {@required this.id, @required this.dateAndTime, @required this.taskId});
+
   factory Notification.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
@@ -443,6 +474,7 @@ class Notification extends DataClass implements Insertable<Notification> {
           intType.mapFromDatabaseResponse(data['${effectivePrefix}task_id']),
     );
   }
+
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -478,6 +510,7 @@ class Notification extends DataClass implements Insertable<Notification> {
       taskId: serializer.fromJson<int>(json['taskId']),
     );
   }
+
   @override
   Map<String, dynamic> toJson({ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
@@ -494,6 +527,7 @@ class Notification extends DataClass implements Insertable<Notification> {
         dateAndTime: dateAndTime ?? this.dateAndTime,
         taskId: taskId ?? this.taskId,
       );
+
   @override
   String toString() {
     return (StringBuffer('Notification(')
@@ -507,6 +541,7 @@ class Notification extends DataClass implements Insertable<Notification> {
   @override
   int get hashCode =>
       $mrjf($mrjc(id.hashCode, $mrjc(dateAndTime.hashCode, taskId.hashCode)));
+
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
@@ -520,17 +555,20 @@ class NotificationsCompanion extends UpdateCompanion<Notification> {
   final Value<int> id;
   final Value<DateTime> dateAndTime;
   final Value<int> taskId;
+
   const NotificationsCompanion({
     this.id = const Value.absent(),
     this.dateAndTime = const Value.absent(),
     this.taskId = const Value.absent(),
   });
+
   NotificationsCompanion.insert({
     this.id = const Value.absent(),
     @required DateTime dateAndTime,
     @required int taskId,
   })  : dateAndTime = Value(dateAndTime),
         taskId = Value(taskId);
+
   static Insertable<Notification> custom({
     Expression<int> id,
     Expression<DateTime> dateAndTime,
@@ -582,11 +620,15 @@ class $NotificationsTable extends Notifications
     with TableInfo<$NotificationsTable, Notification> {
   final GeneratedDatabase _db;
   final String _alias;
+
   $NotificationsTable(this._db, [this._alias]);
+
   final VerificationMeta _idMeta = const VerificationMeta('id');
   GeneratedIntColumn _id;
+
   @override
   GeneratedIntColumn get id => _id ??= _constructId();
+
   GeneratedIntColumn _constructId() {
     return GeneratedIntColumn('id', $tableName, false,
         hasAutoIncrement: true, declaredAsPrimaryKey: true);
@@ -595,9 +637,11 @@ class $NotificationsTable extends Notifications
   final VerificationMeta _dateAndTimeMeta =
       const VerificationMeta('dateAndTime');
   GeneratedDateTimeColumn _dateAndTime;
+
   @override
   GeneratedDateTimeColumn get dateAndTime =>
       _dateAndTime ??= _constructDateAndTime();
+
   GeneratedDateTimeColumn _constructDateAndTime() {
     return GeneratedDateTimeColumn(
       'date_and_time',
@@ -608,8 +652,10 @@ class $NotificationsTable extends Notifications
 
   final VerificationMeta _taskIdMeta = const VerificationMeta('taskId');
   GeneratedIntColumn _taskId;
+
   @override
   GeneratedIntColumn get taskId => _taskId ??= _constructTaskId();
+
   GeneratedIntColumn _constructTaskId() {
     return GeneratedIntColumn('task_id', $tableName, false,
         $customConstraints: 'REFERENCES tasks(id)');
@@ -617,12 +663,15 @@ class $NotificationsTable extends Notifications
 
   @override
   List<GeneratedColumn> get $columns => [id, dateAndTime, taskId];
+
   @override
   $NotificationsTable get asDslTable => this;
+
   @override
   String get $tableName => _alias ?? 'notifications';
   @override
   final String actualTableName = 'notifications';
+
   @override
   VerificationContext validateIntegrity(Insertable<Notification> instance,
       {bool isInserting = false}) {
@@ -650,6 +699,7 @@ class $NotificationsTable extends Notifications
 
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
+
   @override
   Notification map(Map<String, dynamic> data, {String tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
@@ -665,17 +715,23 @@ class $NotificationsTable extends Notifications
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
   $TasksTable _tasks;
+
   $TasksTable get tasks => _tasks ??= $TasksTable(this);
   $NotificationsTable _notifications;
+
   $NotificationsTable get notifications =>
       _notifications ??= $NotificationsTable(this);
   TasksDao _tasksDao;
+
   TasksDao get tasksDao => _tasksDao ??= TasksDao(this as AppDatabase);
   NotificationsDao _notificationsDao;
+
   NotificationsDao get notificationsDao =>
       _notificationsDao ??= NotificationsDao(this as AppDatabase);
+
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
+
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [tasks, notifications];
 }

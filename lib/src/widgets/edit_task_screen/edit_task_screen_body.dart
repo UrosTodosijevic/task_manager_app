@@ -3,19 +3,28 @@ import 'package:intl/intl.dart';
 import 'package:moor/moor.dart' hide Column;
 import 'package:task_manager_app/src/data/database/database.dart';
 import 'package:task_manager_app/src/models/reminder.dart';
+import 'package:task_manager_app/src/models/task_with_reminders.dart';
 import 'package:task_manager_app/src/providers.dart';
 import 'package:task_manager_app/src/styles/styles.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class NewTaskScreenBody extends StatefulWidget {
-  NewTaskScreenBody({Key key}) : super(key: key);
+class EditTaskScreenBody extends StatefulWidget {
+  final TaskWithReminders taskWithReminders;
+
+  EditTaskScreenBody({
+    Key key,
+    @required this.taskWithReminders,
+  }) : super(key: key);
 
   @override
-  NewTaskScreenBodyState createState() => NewTaskScreenBodyState();
+  EditTaskScreenBodyState createState() => EditTaskScreenBodyState();
 }
 
-class NewTaskScreenBodyState extends State<NewTaskScreenBody> {
+class EditTaskScreenBodyState extends State<EditTaskScreenBody> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  Task _task;
+  List<Reminder> _tasksListOfReminders;
 
   String _title;
 
@@ -33,36 +42,40 @@ class NewTaskScreenBodyState extends State<NewTaskScreenBody> {
 
   // TODO:
   // Repeat variables
-  bool _repeatingTask;
+  //bool _repeatingTask;
 
   // Notes variables
   bool _hasNote;
   String _notesText;
 
+  bool _keepCompleted = false;
+
   @override
   void initState() {
-    _title = '';
+    // Initialize local state task and list of reminders from object passed to the widget
+    _task = widget.taskWithReminders.task;
+    _tasksListOfReminders = widget.taskWithReminders.listOfReminders;
 
-    // TODO: izbaciti ako nova inicijalizacija dobro radi
-    /*_startDate =
-        DateTime.now().add(Duration(hours: 1, minutes: -DateTime.now().minute));
-    _endDate =
-        DateTime.now().add(Duration(hours: 2, minutes: -DateTime.now().minute));*/
-    DateTime now = DateTime.now();
-    _startDate = DateTime(now.year, now.month, now.day, now.hour + 1, 0);
-    _endDate = DateTime(now.year, now.month, now.day, now.hour + 2, 0);
+    _title = _task.title;
+
+    _startDate = _task.startDate;
+    _endDate = _task.endDate;
     _currentStartTime = TimeOfDay.fromDateTime(_startDate);
     _currentEndTime = TimeOfDay.fromDateTime(_endDate);
 
-    _allDay = false;
-    _useNotifications = false;
+    _allDay = _task.allDayTask;
+    _useNotifications = _tasksListOfReminders.isNotEmpty;
 
-    setListOfReminders();
+    if (_useNotifications) {
+      _listOfReminders = _tasksListOfReminders;
+    } else {
+      setListOfReminders();
+    }
 
-    _repeatingTask = false;
+    //_repeatingTask = false;
 
-    _hasNote = false;
-    _notesText = '';
+    _hasNote = _task.notes != null;
+    _notesText = _task.notes ?? '';
 
     super.initState();
   }
@@ -101,10 +114,16 @@ class NewTaskScreenBodyState extends State<NewTaskScreenBody> {
     return pickedTime;
   }
 
-  Future<bool> tryToEnterNewTask() async {
+  Future<bool> tryToEditTask() async {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
 
+      bool changed = _checkIfChanged();
+      if (!changed) return true;
+
+      await context.read(tasksDaoProvider).deleteTask(_task);
+
+      // TODO: proveri da li su task i lista  remindera isti kao na pocetku, ako nisu, edituj task i listu u bazi, moguce je da ih je potrebno izbrisati, mada, vrlo je moguce da je dovoljno samo  koristiti replace, on bi trebao da zameni sadrzaj pomocu kljuca, ovo bi moglo da predstavlja jos jedan problem jer koristim listu remindera a ne notifikacija, tako da cu mozda morati ponovo da trazim svaku notifikaciju zbog id-a ili samo da ovo radim u koraku unazad gde imam i listu notifikacija
       DateTime _newStartDate;
       DateTime _newEndDate;
       if (_allDay) {
@@ -125,6 +144,14 @@ class NewTaskScreenBodyState extends State<NewTaskScreenBody> {
         notes: _hasNote ? Value(_notesText) : Value.absent(),
       );
 
+      // Whether to keep task's completed parameter or not
+      if (_task.completed) {
+        await _keepCompletedDialog();
+        if (_keepCompleted) {
+          task = task.copyWith(completed: Value(_task.completed));
+        }
+      }
+
       int taskId = await context.read(tasksDaoProvider).insertTask(task);
 
       if (_useNotifications && _listOfReminders.isNotEmpty) {
@@ -138,9 +165,11 @@ class NewTaskScreenBodyState extends State<NewTaskScreenBody> {
               .read(notificationsDaoProvider)
               .insertNotification(notification);
 
-          await context
-              .read(notificationServiceProvider)
-              .scheduleNotificationUsingIds(taskId, notificationId);
+          if(!_keepCompleted){
+            await context
+                .read(notificationServiceProvider)
+                .scheduleNotificationUsingIds(taskId, notificationId);
+          }
         });
       }
 
@@ -151,8 +180,66 @@ class NewTaskScreenBodyState extends State<NewTaskScreenBody> {
     return false;
   }
 
+  bool _checkIfChanged() {
+    if (_task.title != _title) return true;
+    if (_task.allDayTask != _allDay) return true;
+    if (_task.startDate != _startDate) return true;
+    if (_task.endDate != _endDate) return true;
+    if ((_task.notes != null) != _hasNote) return true;
+    if (_task.notes != _notesText) return true;
+
+    // TODO: Trebalo bi da radi
+    if (_tasksListOfReminders.isNotEmpty != _useNotifications) return true;
+    if (_tasksListOfReminders != _listOfReminders) return true;
+
+    return false;
+  }
+
+  Future<void> _keepCompletedDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Task Editing'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('Keep the value of task\'s completed parameter?'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('No'),
+              onPressed: () {
+                setState(() {
+                  _keepCompleted = false;
+                });
+                print(' keep completed: $_keepCompleted');
+                Navigator.of(context).pop();
+              },
+            ),
+            FlatButton(
+              child: Text('Yes'),
+              onPressed: () {
+                setState(() {
+                  _keepCompleted = true;
+                });
+                print(' keep completed: $_keepCompleted');
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    print(widget.taskWithReminders);
+
     // Omogucava da se iz input fielda izadje klikom bilo gde na ekranu
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -169,6 +256,7 @@ class NewTaskScreenBodyState extends State<NewTaskScreenBody> {
               children: <Widget>[
                 SizedBox(height: 20.0),
                 TextFormField(
+                  initialValue: _title,
                   decoration: InputDecoration(
                     hintText: 'New Task Name...',
                     hintStyle: TextStyle(fontSize: 20.0),
@@ -177,14 +265,8 @@ class NewTaskScreenBodyState extends State<NewTaskScreenBody> {
                   cursorColor: AppColors.cadetBlue,
                   maxLength: 32,
                   style: TextStyle(fontSize: 20.0),
-                  validator: (String value) {
-                    if (value.isEmpty) {
-                      return 'Task name is required';
-                    } else if (value.length < 6) {
-                      return 'Task name must be at least 6 characters long.';
-                    }
-                    return null;
-                  },
+                  validator: (String value) =>
+                      value.isEmpty ? 'Task name is required' : null,
                   onSaved: (String value) {
                     setState(() {
                       _title = value;
@@ -302,7 +384,6 @@ class NewTaskScreenBodyState extends State<NewTaskScreenBody> {
                                     pickedDate.day,
                                     pickedTime.hour,
                                     pickedTime.minute);
-                                // TODO: moguce da sam ovo popravio promenom prve inicijalizacije
                                 /*
                                 does not work as planed when newStartDateTime
                                 has everything same, because of the way
@@ -628,6 +709,7 @@ class NewTaskScreenBodyState extends State<NewTaskScreenBody> {
                 ),
                 _hasNote
                     ? TextFormField(
+                        initialValue: _notesText,
                         maxLines: null,
                         maxLength: 160,
                         decoration: InputDecoration(

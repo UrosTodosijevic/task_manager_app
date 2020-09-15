@@ -27,16 +27,20 @@ class TasksDao extends DatabaseAccessor<AppDatabase> with _$TasksDaoMixin {
         ]))
       .watch();
 
-  Stream<List<Task>> watchAllTasksInDay(DateTime date) => (select(tasks)
-        ..where((t) =>
-            t.startDate.year.equals(date.year) &
-            t.startDate.month.equals(date.month) &
-            t.startDate.day.equals(date.day))
-        ..orderBy([
-          (task) => OrderingTerm(expression: task.startDate),
-          (task) => OrderingTerm(expression: task.title),
-        ]))
-      .watch();
+  Stream<List<Task>> watchAllTasksInDay(DateTime date) {
+    final beginningOfDay =
+        DateTime(date.year, date.month, date.day, 0, 0).toUtc();
+    final endOfDay = DateTime(date.year, date.month, date.day, 23, 59).toUtc();
+    return (select(tasks)
+          ..where((t) =>
+              t.startDate.isBiggerOrEqualValue(beginningOfDay) &
+              t.startDate.isSmallerOrEqualValue(endOfDay))
+          ..orderBy([
+            (task) => OrderingTerm(expression: task.startDate),
+            (task) => OrderingTerm(expression: task.title),
+          ]))
+        .watch();
+  }
 
   // TODO: Verovatno bih trebao da implementiram .catchError() da pokrijem slucaj kada dodje do greske pri pravljenju taska, npr. poslati poruku na ErrorScreen
   Future<int> insertTask(TasksCompanion task) => into(tasks).insert(task);
