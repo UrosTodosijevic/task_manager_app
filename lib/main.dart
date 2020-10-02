@@ -31,19 +31,6 @@ void main() async {
     selectNotificationSubject.add(payload);
   });
 
-  // TODO: izbrisati ovaj deo
-  var nulaNula = DateTime(2020, 8, 31, 0, 0);
-  var nulaJedan = DateTime(2020, 8, 31, 0, 1);
-  var minutDoPonoci = DateTime(2020, 8, 31, 23, 59);
-  var ponoc = DateTime(2020, 8, 31, 23, 60);
-
-  print('--------------------------------------');
-  print('nula nula: $nulaNula');
-  print('nula jedan: $nulaJedan');
-  print('minut do ponoci: $minutDoPonoci');
-  print('ponoc: $ponoc');
-  print('--------------------------------------');
-
   runApp(ProviderScope(
     child: App(),
   ));

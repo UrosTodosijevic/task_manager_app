@@ -4,10 +4,12 @@ import 'package:task_manager_app/src/styles/styles.dart';
 class AppBarIconButton extends StatelessWidget {
   final IconData iconData;
   final void Function() onPressed;
+  String tooltip;
 
   AppBarIconButton({
     @required this.iconData,
     @required this.onPressed,
+    this.tooltip,
   });
 
   @override
@@ -17,6 +19,7 @@ class AppBarIconButton extends StatelessWidget {
       iconSize: ButtonStyles.iconButtonSize,
       color: ButtonStyles.iconButtonColor,
       onPressed: onPressed,
+      tooltip: tooltip != null ? tooltip : null,
     );
   }
 }

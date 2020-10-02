@@ -32,8 +32,12 @@ class HomeScreenAppBar extends StatelessWidget implements PreferredSizeWidget {
       leading: AppBarIconButton(
         iconData: Icons.dehaze,
         onPressed: () {
-          /*Navigator.of(context).pushNamed(*/ /*'/todo_list_screen'*/ /*
-              '/categories_screen');*/
+          Scaffold.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                  'This feature will be added in the next version of Task Manage application.'),
+            ),
+          );
         },
       ),
       actions: <Widget>[
@@ -45,10 +49,10 @@ class HomeScreenAppBar extends StatelessWidget implements PreferredSizeWidget {
             context.read(selectedDateProvider).state =
                 date.add(Duration(days: -1));*/
             final napravljeniTaskCompanion = TasksCompanion(
-              title: Value('helloooooo task'),
+              title: Value('Demonstration task'),
               allDayTask: Value(false),
               completed: Value(false),
-              notes: Value('Ovo je task koji sam ja napravio klikom na dugme'),
+              notes: Value('This is task made for demonstration purposes'),
               startDate: Value(DateTime.now().add(Duration(minutes: 5))),
               endDate: Value(DateTime.now().add(Duration(minutes: 10))),
             );
@@ -93,12 +97,21 @@ class HomeScreenAppBar extends StatelessWidget implements PreferredSizeWidget {
             await context
                 .read(notificationServiceProvider)
                 .scheduleInsistentNotification(task, notification2);
+
+            Scaffold.of(context).showSnackBar(
+              SnackBar(
+                content: Text('For demonstration purposes added new Task '
+                    'with Notifications. Search feature will be added in '
+                    'the next version of Task Manage application.'),
+              ),
+            );
           },
         ),
         AppBarIconButton(
           iconData: Icons.refresh,
           onPressed: () => context.read(selectedDateProvider).state =
               context.read(currentDateProvider).state,
+          tooltip: 'Today',
         ),
       ],
     );
