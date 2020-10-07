@@ -1,1 +1,1 @@
-enum TaskOption { edit, delete }
+enum TaskOption { edit, delete, copy }

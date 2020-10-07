@@ -43,11 +43,6 @@ class NewTaskScreenBodyState extends State<NewTaskScreenBody> {
   void initState() {
     _title = '';
 
-    // TODO: izbaciti ako nova inicijalizacija dobro radi
-    /*_startDate =
-        DateTime.now().add(Duration(hours: 1, minutes: -DateTime.now().minute));
-    _endDate =
-        DateTime.now().add(Duration(hours: 2, minutes: -DateTime.now().minute));*/
     DateTime now = DateTime.now();
     _startDate = DateTime(now.year, now.month, now.day, now.hour + 1, 0);
     _endDate = DateTime(now.year, now.month, now.day, now.hour + 2, 0);
@@ -302,13 +297,7 @@ class NewTaskScreenBodyState extends State<NewTaskScreenBody> {
                                     pickedDate.day,
                                     pickedTime.hour,
                                     pickedTime.minute);
-                                // TODO: moguce da sam ovo popravio promenom prve inicijalizacije
-                                /*
-                                does not work as planed when newStartDateTime
-                                has everything same, because of the way
-                                startDate is initialized at beginning (seconds
-                                and milliseconds are not subtract from .now()
-                                 */
+
                                 if (newStartDateTime.compareTo(_endDate) < 0) {
                                   setState(() {
                                     _startDate = newStartDateTime;
@@ -407,7 +396,6 @@ class NewTaskScreenBodyState extends State<NewTaskScreenBody> {
                                     _currentEndTime = pickedTime;
                                   });
                                 } else {
-                                  print('-------------- evo me --------------');
                                   Scaffold.of(context).showSnackBar(SnackBar(
                                     content: Text(
                                         'End date should be later than start date...'),
@@ -477,17 +465,6 @@ class NewTaskScreenBodyState extends State<NewTaskScreenBody> {
                                       ),
                                     ),
                                   ),
-                            /*FlatButton(
-                              //clipBehavior: Clip.antiAlias,
-                              shape: CircleBorder(),
-                              //padding: const EdgeInsets.all(10.0),
-                              child: Container(
-                                width: 20,
-                                child: Icon(Icons.add,
-                                    size: 32.0, color: AppColors.tealBlue),
-                              ),
-                              onPressed: () => print('add notifications'),
-                            ),*/
                             IconButton(
                               alignment: Alignment.center,
                               iconSize: 32.0,
@@ -672,14 +649,11 @@ class NewTaskScreenBodyState extends State<NewTaskScreenBody> {
           Expanded(
             child: GestureDetector(
               onTap: () async {
-                print('samo da javim da radi');
-                // TODO: prosledi reminder, radi nesto sa njim i vidi da li nesto vraca!!!
                 final returnedReminder = await Navigator.of(context)
                     .pushNamed<Reminder>('/reminder_screen', arguments: {
                   'reminder': reminder,
                   'allDayTaskReminder': _allDay,
                 });
-                // TODO: prvo proveri da li je drugaciji od onog preko kojeg je otvoren, ako jeste izbrisi taj i dodaj novi, ako nije, ne radi nista
                 if (returnedReminder != null) {
                   if (returnedReminder != reminder &&
                       returnedReminder.toMinutes != reminder.toMinutes) {
@@ -695,9 +669,9 @@ class NewTaskScreenBodyState extends State<NewTaskScreenBody> {
                           ..sort();
                       });
                     }
-                    // onaj od kojeg se krenulo treba izbrisati
                   }
                 } else {
+                  // TODO: verovatno ne raditi nista, mozda i izbrisati ovaj else
                   print('vration je null');
                 }
               },

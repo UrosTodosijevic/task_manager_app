@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:task_manager_app/src/data/database/database.dart';
 import 'package:task_manager_app/src/models/no_task_forwarded.dart';
 import 'package:task_manager_app/src/models/reminder.dart';
+import 'package:task_manager_app/src/models/task_to_copy.dart';
 import 'package:task_manager_app/src/screens/screens.dart';
 
 abstract class Routes {
@@ -17,6 +18,9 @@ abstract class Routes {
         } else if (arguments is Task) {
           return MaterialPageRoute(
               builder: (context) => EditTaskScreen(arguments));
+        }else if (arguments is TaskToCopy) {
+          return MaterialPageRoute(
+              builder: (context) => CopyTaskScreen(arguments));
         }
         return _errorRoute();
       case '/reminder_screen':

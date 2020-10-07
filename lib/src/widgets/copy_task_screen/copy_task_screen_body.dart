@@ -8,19 +8,19 @@ import 'package:task_manager_app/src/providers.dart';
 import 'package:task_manager_app/src/styles/styles.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class EditTaskScreenBody extends StatefulWidget {
+class CopyTaskScreenBody extends StatefulWidget {
   final TaskWithReminders taskWithReminders;
 
-  EditTaskScreenBody({
+  CopyTaskScreenBody({
     Key key,
     @required this.taskWithReminders,
   }) : super(key: key);
 
   @override
-  EditTaskScreenBodyState createState() => EditTaskScreenBodyState();
+  CopyTaskScreenBodyState createState() => CopyTaskScreenBodyState();
 }
 
-class EditTaskScreenBodyState extends State<EditTaskScreenBody> {
+class CopyTaskScreenBodyState extends State<CopyTaskScreenBody> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   Task _task;
@@ -39,7 +39,6 @@ class EditTaskScreenBodyState extends State<EditTaskScreenBody> {
   // Notification variables
   bool _useNotifications;
   List<Reminder> _listOfReminders;
-  List<Reminder> _listOfRemindersCopy;
 
   // TODO:
   // Repeat variables
@@ -49,8 +48,6 @@ class EditTaskScreenBodyState extends State<EditTaskScreenBody> {
   bool _hasNote;
   String _notesText;
 
-  bool _keepCompleted = false;
-
   @override
   void initState() {
     // Initialize local state task and list of reminders from object passed to the widget
@@ -59,8 +56,9 @@ class EditTaskScreenBodyState extends State<EditTaskScreenBody> {
 
     _title = _task.title;
 
-    _startDate = _task.startDate;
-    _endDate = _task.endDate;
+    DateTime now = DateTime.now();
+    _startDate = DateTime(now.year, now.month, now.day, now.hour + 1, 0);
+    _endDate = DateTime(now.year, now.month, now.day, now.hour + 2, 0);
     _currentStartTime = TimeOfDay.fromDateTime(_startDate);
     _currentEndTime = TimeOfDay.fromDateTime(_endDate);
 
@@ -72,8 +70,6 @@ class EditTaskScreenBodyState extends State<EditTaskScreenBody> {
     } else {
       setListOfReminders();
     }
-
-    _listOfRemindersCopy = List<Reminder>()..addAll(_tasksListOfReminders);
 
     //_repeatingTask = false;
 
@@ -91,8 +87,7 @@ class EditTaskScreenBodyState extends State<EditTaskScreenBody> {
     } else {
       _listOfReminders = List<ReminderForTimeSensitiveTask>()
         ..add(tenMinutesBefore)
-        //..add(oneHourBefore)
-        ..add(ReminderForTimeSensitiveTask(minutes: 60))
+        ..add(oneHourBefore)
         ..add(oneWeekBefore);
     }
   }
@@ -117,16 +112,10 @@ class EditTaskScreenBodyState extends State<EditTaskScreenBody> {
     return pickedTime;
   }
 
-  Future<bool> tryToEditTask() async {
+  Future<bool> tryToCopyTask() async {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
 
-      bool changed = _checkIfChanged();
-      if (!changed) return true;
-
-      await context.read(tasksDaoProvider).deleteTask(_task);
-
-      // TODO: proveri da li su task i lista  remindera isti kao na pocetku, ako nisu, edituj task i listu u bazi, moguce je da ih je potrebno izbrisati, mada, vrlo je moguce da je dovoljno samo  koristiti replace, on bi trebao da zameni sadrzaj pomocu kljuca, ovo bi moglo da predstavlja jos jedan problem jer koristim listu remindera a ne notifikacija, tako da cu mozda morati ponovo da trazim svaku notifikaciju zbog id-a ili samo da ovo radim u koraku unazad gde imam i listu notifikacija
       DateTime _newStartDate;
       DateTime _newEndDate;
       if (_allDay) {
@@ -147,14 +136,6 @@ class EditTaskScreenBodyState extends State<EditTaskScreenBody> {
         notes: _hasNote ? Value(_notesText) : Value.absent(),
       );
 
-      // Whether to keep task's completed parameter or not
-      if (_task.completed) {
-        await _keepCompletedDialog();
-        if (_keepCompleted) {
-          task = task.copyWith(completed: Value(_task.completed));
-        }
-      }
-
       int taskId = await context.read(tasksDaoProvider).insertTask(task);
 
       if (_useNotifications && _listOfReminders.isNotEmpty) {
@@ -168,11 +149,9 @@ class EditTaskScreenBodyState extends State<EditTaskScreenBody> {
               .read(notificationsDaoProvider)
               .insertNotification(notification);
 
-          if (!_keepCompleted) {
-            await context
-                .read(notificationServiceProvider)
-                .scheduleNotificationUsingIds(taskId, notificationId);
-          }
+          await context
+              .read(notificationServiceProvider)
+              .scheduleNotificationUsingIds(taskId, notificationId);
         });
       }
 
@@ -183,76 +162,8 @@ class EditTaskScreenBodyState extends State<EditTaskScreenBody> {
     return false;
   }
 
-  bool _checkIfChanged() {
-    if (_task.title != _title) return true;
-    if (_task.allDayTask != _allDay) return true;
-    if (_task.startDate != _startDate) return true;
-    if (_task.endDate != _endDate) return true;
-    if ((_task.notes != null) != _hasNote) return true;
-    if (_hasNote && _task.notes != _notesText) return true;
-
-    if (_tasksListOfReminders.isNotEmpty != _useNotifications) return true;
-    if (_useNotifications &&
-        _haveDifferentContent(_listOfRemindersCopy, _listOfReminders))
-      return true;
-
-    return false;
-  }
-
-  bool _haveDifferentContent(
-      List<Reminder> originalList, List<Reminder> newList) {
-    if (originalList.length != newList.length) return true;
-    for (int i = 0; i < originalList.length; i++) {
-      if (originalList[i].compareTo(newList[i]) != 0) return true;
-    }
-    return false;
-  }
-
-  Future<void> _keepCompletedDialog() async {
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Task Editing'),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: <Widget>[
-                Text('Keep the value of task\'s completed parameter?'),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            FlatButton(
-              child: Text('No'),
-              onPressed: () {
-                setState(() {
-                  _keepCompleted = false;
-                });
-                print(' keep completed: $_keepCompleted');
-                Navigator.of(context).pop();
-              },
-            ),
-            FlatButton(
-              child: Text('Yes'),
-              onPressed: () {
-                setState(() {
-                  _keepCompleted = true;
-                });
-                print(' keep completed: $_keepCompleted');
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    print(widget.taskWithReminders);
-
     // Omogucava da se iz input fielda izadje klikom bilo gde na ekranu
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -271,15 +182,21 @@ class EditTaskScreenBodyState extends State<EditTaskScreenBody> {
                 TextFormField(
                   initialValue: _title,
                   decoration: InputDecoration(
-                    hintText: 'New Task Name...',
+                    hintText: 'Task Name...',
                     hintStyle: TextStyle(fontSize: 20.0),
                   ),
                   cursorWidth: 3.0,
                   cursorColor: AppColors.cadetBlue,
                   maxLength: 32,
                   style: TextStyle(fontSize: 20.0),
-                  validator: (String value) =>
-                      value.isEmpty ? 'Task name is required' : null,
+                  validator: (String value) {
+                    if (value.isEmpty) {
+                      return 'Task name is required';
+                    } else if (value.length < 6) {
+                      return 'Task name must be at least 6 characters long.';
+                    }
+                    return null;
+                  },
                   onSaved: (String value) {
                     setState(() {
                       _title = value;
@@ -397,12 +314,7 @@ class EditTaskScreenBodyState extends State<EditTaskScreenBody> {
                                     pickedDate.day,
                                     pickedTime.hour,
                                     pickedTime.minute);
-                                /*
-                                does not work as planed when newStartDateTime
-                                has everything same, because of the way
-                                startDate is initialized at beginning (seconds
-                                and milliseconds are not subtract from .now()
-                                 */
+
                                 if (newStartDateTime.compareTo(_endDate) < 0) {
                                   setState(() {
                                     _startDate = newStartDateTime;
@@ -501,7 +413,6 @@ class EditTaskScreenBodyState extends State<EditTaskScreenBody> {
                                     _currentEndTime = pickedTime;
                                   });
                                 } else {
-                                  print('-------------- evo me --------------');
                                   Scaffold.of(context).showSnackBar(SnackBar(
                                     content: Text(
                                         'End date should be later than start date...'),
@@ -571,17 +482,6 @@ class EditTaskScreenBodyState extends State<EditTaskScreenBody> {
                                       ),
                                     ),
                                   ),
-                            /*FlatButton(
-                              //clipBehavior: Clip.antiAlias,
-                              shape: CircleBorder(),
-                              //padding: const EdgeInsets.all(10.0),
-                              child: Container(
-                                width: 20,
-                                child: Icon(Icons.add,
-                                    size: 32.0, color: AppColors.tealBlue),
-                              ),
-                              onPressed: () => print('add notifications'),
-                            ),*/
                             IconButton(
                               alignment: Alignment.center,
                               iconSize: 32.0,
@@ -767,7 +667,6 @@ class EditTaskScreenBodyState extends State<EditTaskScreenBody> {
           Expanded(
             child: GestureDetector(
               onTap: () async {
-                print('samo da javim da radi');
                 final returnedReminder = await Navigator.of(context)
                     .pushNamed<Reminder>('/reminder_screen', arguments: {
                   'reminder': reminder,
@@ -797,7 +696,6 @@ class EditTaskScreenBodyState extends State<EditTaskScreenBody> {
               child: Text(
                 reminder.toString(),
                 style: TextStyles.mediumBodyTextStyle,
-                //style: TextStyle(fontSize: 16.0),
               ),
             ),
           ),

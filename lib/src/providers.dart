@@ -4,7 +4,10 @@ import 'package:task_manager_app/src/data/database/database.dart';
 import 'package:task_manager_app/src/services/notification_service.dart';
 
 // Date providers
-final currentDateProvider = StateProvider<DateTime>((ref) => DateTime.now());
+final currentDateProvider = StateProvider<DateTime>((ref) {
+  DateTime now = DateTime.now();
+  return DateTime(now.year, now.month, now.day, now.hour, now.minute);
+});
 
 final selectedDateProvider =
     StateProvider<DateTime>((ref) => ref.read(currentDateProvider).state);
