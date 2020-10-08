@@ -5,18 +5,14 @@ import 'package:task_manager_app/src/styles/colors.dart';
 class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return PlatformApp();
-  }
-}
-
-class PlatformApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Task Manager',
       theme: ThemeData(
         primaryColor: AppColors.cadetBlue,
+        /*Overscroll color set by next property,
+        earlier didn't accept non-Material colors*/
+        accentColor: AppColors.pewterBlue,
         colorScheme: ColorScheme(
           primary: AppColors.cadetBlue,
           primaryVariant: AppColors.tealBlue,
@@ -27,8 +23,8 @@ class PlatformApp extends StatelessWidget {
           error: Colors.red,
           onPrimary: AppColors.charcoal,
           onSecondary: AppColors.raisinBlack,
-          onSurface: /*AppColors.raisinBlack*/AppColors.charcoal,
-          onBackground: /*AppColors.raisinBlack*/AppColors.charcoal,
+          onSurface: /*AppColors.raisinBlack*/ AppColors.charcoal,
+          onBackground: /*AppColors.raisinBlack*/ AppColors.charcoal,
           onError: AppColors.raisinBlack,
           brightness: Brightness.light,
         ),
